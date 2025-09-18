@@ -61,9 +61,9 @@ function renderEducation() {
         <div class="education-item__institution">${edu.institution}</div>
         <div class="education-item__meta">${edu.location} • ${edu.dates}</div>
       </div>
-      <ul class="education-item__bullets">
-        ${edu.highlights.map(highlight => `<li class="education-item__bullet">${highlight}</li>`).join('')}
-      </ul>
+      <div class="education-item__highlights">
+        ${edu.highlights.map(highlight => `<div class="education-item__highlight">${highlight}</div>`).join('')}
+      </div>
     </div>
   `).join('');
   
@@ -74,23 +74,70 @@ function renderEducation() {
 function renderProjects() {
   const projectsList = document.getElementById('projectsList');
   
-  const projectsHTML = siteData.projects.map(project => `
+  const projectsHTML = siteData.projects.map((project, index) => `
     <div class="project-card">
-      <h3 class="project-card__title">${project.name}</h3>
+      <div class="project-card__header">
+        <div class="project-card__title-section">
+          <h3 class="project-card__title">${project.name}</h3>
+          <button class="project-card__toggle" data-project-index="${index}" aria-expanded="false">
+            <span class="toggle-text">Show Details</span>
+            <span class="toggle-icon">▼</span>
+          </button>
+        </div>
+        <div class="project-card__dates">${project.dates}</div>
+      </div>
       <p class="project-card__summary">${project.summary}</p>
-      <div class="project-card__stack">
-        ${project.stack.map(tech => `<span class="stack-badge">${tech}</span>`).join('')}
+      <div class="project-card__stack-section">
+        <div class="project-card__stack">
+          ${project.stack.map(tech => `<span class="stack-badge">${tech}</span>`).join('')}
+        </div>
+        <div class="project-card__links">
+          ${project.links.live && project.links.live !== '#' ? `<a href="${project.links.live}" class="project-card__link" target="_blank" rel="noopener">Live Demo</a>` : ''}
+          <a href="${project.links.github}" class="project-card__link" target="_blank" rel="noopener">GitHub</a>
+        </div>
       </div>
-      <div class="project-card__links">
-        ${project.links.live && project.links.live !== '#' ? `<a href="${project.links.live}" class="project-card__link" target="_blank" rel="noopener">Live Demo</a>` : ''}
-        <a href="${project.links.github}" class="project-card__link" target="_blank" rel="noopener">GitHub</a>
-      </div>
+      <ul class="project-card__bullets" style="display: none;">
+        ${project.bullets.map(bullet => `<li class="project-card__bullet">${bullet}</li>`).join('')}
+      </ul>
     </div>
   `).join('');
   
   projectsList.innerHTML = projectsHTML;
+  
+  // Add event listeners for toggle buttons
+  setupProjectToggles();
 }
 
+// Setup Project Toggle Functionality
+function setupProjectToggles() {
+  const toggleButtons = document.querySelectorAll('.project-card__toggle');
+  
+  toggleButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const projectIndex = this.getAttribute('data-project-index');
+      // Find the project card (parent of the footer)
+      const projectCard = this.closest('.project-card');
+      const bulletsList = projectCard.querySelector('.project-card__bullets');
+      const toggleText = this.querySelector('.toggle-text');
+      const toggleIcon = this.querySelector('.toggle-icon');
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      
+      if (isExpanded) {
+        // Hide bullets
+        bulletsList.style.display = 'none';
+        toggleText.textContent = 'Show Details';
+        toggleIcon.textContent = '▼';
+        this.setAttribute('aria-expanded', 'false');
+      } else {
+        // Show bullets
+        bulletsList.style.display = 'block';
+        toggleText.textContent = 'Hide Details';
+        toggleIcon.textContent = '▲';
+        this.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+}
 
 // Render Skills Section
 function renderSkills() {
