@@ -278,15 +278,16 @@ function handleFormSubmit(e) {
   isValid = validateField(contactForm.querySelector('#message')) && isValid;
   
   if (isValid) {
-    // you would send the data to a server
-    // use a mailto fallback
-    const subject = encodeURIComponent('Portfolio Contact Form');
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nMessage: ${message}`);
-    const mailtoLink = `mailto:${siteData.contact.email}?subject=${subject}&body=${body}`;
+    // Create Gmail compose URL with form data
+    const subject = encodeURIComponent(`Portfolio Contact: ${name}`);
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${siteData.contact.email}&su=${subject}&body=${body}`;
     
-    window.location.href = mailtoLink;
+    // Open Gmail in new tab
+    window.open(gmailUrl, '_blank');
     
-    showFormMessage('Thank you! Your message has been sent.', 'success');
+    // Show success message
+    showFormMessage('Thank you! Gmail should open with your message ready to send.', 'success');
     contactForm.reset();
   } else {
     showFormMessage('Error: Please correct the errors above.', 'error');
@@ -414,7 +415,7 @@ function setupLazyLoading() {
 // Initialize lazy loading
 setupLazyLoading();
 
-// Add CSS for form messages
+// Add CSS for form messages and loading states
 const style = document.createElement('style');
 style.textContent = `
   .form-message {
@@ -439,6 +440,18 @@ style.textContent = `
   .form-input.error,
   .form-textarea.error {
     border-color: #e74c3c;
+  }
+  
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .form-error {
+    color: #e74c3c;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    min-height: 1.25rem;
   }
 `;
 document.head.appendChild(style);
